@@ -1,0 +1,29 @@
+Package: raleR
+Title: Room Acoustic Listening Expertise tests (RALE)
+Version: 0.0.0.9000
+Authors@R: 
+    c(person("Markus", "von Berg", , "markusmartin.vonberg@hs-duesseldorf.de", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0003-3664-8602")),
+      person("Tim","Müller",,,role=("aut")),
+      person("Silas", "Sanders", ,,role=("ctb")),
+      person("Daniel","Müllensiefen",,,role=("ctb"),comment=c(ORCID="0000-0001-7297-1760")))
+Description: The package provides functions to measure room acoustic listening expertise in psychTestR. This comprises two listening tests, the Room Recognition Test (RRT) and the reverberation matching Test (RMT), and three self-report questionnaires, the RALE inventory, the NoiSeQ-R and self-reports on previous experience with acoustics. 
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.1
+Imports: 
+    plotly,
+    psychTestR,
+    psyquest,
+    purrr,
+    rlang,
+    shiny,
+    tools,
+    tptR
+Depends: 
+    R (>= 2.10)
+LazyData: true
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
