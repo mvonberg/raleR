@@ -1,11 +1,36 @@
-RMT_instructions <- function(dict=raleR::RALE_dict) {
+RMT_instructions <- function(sliderSounds,sliderLength,value,step=1,ref_buttonSize="20%",
+                             stm_buttonSize="20%",dict=raleR::RALE_dict) {
+
   psychTestR::new_timeline(
-    psychTestR::one_button_page(body = shiny::div(shiny::h3(psychTestR::i18n("RMT_DEMO_HEADER")),
-                                                  shiny::br(),
-                                                  shiny::p(psychTestR::i18n("RMT_DEMO_PROMPT1")),
-                                                  shiny::p(psychTestR::i18n("RMT_DEMO_PROMPT2")),
-                                                  shiny::p(psychTestR::i18n("RMT_DEMO_PROMPT3"))),
-                                button_text = psychTestR::i18n("RMT_DEMO_BUTTON")),
+    psychTestR::page(ui =  shiny::div(shiny::h3(psychTestR::i18n("RMT_DEMO_HEADER")),
+                                      shiny::br(),
+                                      shiny::p(psychTestR::i18n("RMT_DEMO_PROMPT1")),
+                                      shiny::p(psychTestR::i18n("RMT_DEMO_PROMPT2")),
+                                      shiny::p(psychTestR::i18n("RMT_DEMO_PROMPT3")),
+                                      shiny::br(),
+                                      audio_button(sliderSounds[round(sliderLength/3)],id='target',psychTestR::i18n("RMT_TARGET_LABEL"),ref_buttonSize),
+                                      shiny::br(),
+                                      audio_button(sliderSounds[value+1],id='sliderAudio',psychTestR::i18n("RMT_STIMULUS_LABEL"),stm_buttonSize),
+                                      shiny::br(),
+                                      shiny::div(class="slider-container",
+                                                 shiny::tags$input(type="range",
+                                                                   min=0,
+                                                                   max=length(sliderSounds)-1,
+                                                                   value=value,
+                                                                   step=step,
+                                                                   class="slider",
+                                                                   id="slider")
+                                      ),
+                                      shiny::br(),
+                                      psychTestR::trigger_button("next", psychTestR::i18n("NEXT_BUTTON")),
+                                      # javascript
+                                      JS_create_array(values=sliderSounds,array_name="sliderSounds"),
+                                      shiny::tags$script(paste0("var sliderOffset = ",0,";")),
+                                      JS_toggleSounds(),
+                                      JS_processAudioSliderInput()),
+                     label = "RMTdemo", get_answer = NULL, save_answer = FALSE,
+                     on_complete = NULL, final = FALSE,
+                     admin_ui = NULL),
     dict=dict
   )
 }
@@ -30,41 +55,17 @@ RMT_feedback <- function(dict=raleR::RALE_dict) {
       avg_score <- psychTestR::get_local("rmt_score_avg", state)
       rel_score <- psychTestR::get_local("rmt_score_rel", state)
       feedback_body <- shiny::div(
-        shiny::h3(psychTestR::i18n("RMT_FEEDBACK_HEADER")),
+        shiny::h3(psychTestR::i18n("FEEDBACK_HEADER")),
         shiny::br(),
         shiny::p(psychTestR::i18n("RMT_FEEDBACK_TEXT1")),
         shiny::p(shiny::strong(paste(avg_score, psychTestR::i18n("RMT_FEEDBACK_TEXT2")))),
         shiny::br(),
-        shiny::p(RMT_feed_plot(rel_score*100))
+        shiny::p(feedback_plot(rel_score*100))
       )
       psychTestR::one_button_page(body=feedback_body,
-                                  button_text = psychTestR::i18n("RMT_BUTTON_NEXT")
+                                  button_text = psychTestR::i18n("NEXT_BUTTON")
       )
     }),
     dict=dict
   )
-}
-
-
-RMT_feed_plot <- function(score){
-  p <- plotly::plot_ly(
-    domain = list(x = c(0, 1), y = c(0, 1)),
-    value = score,
-    title = list(text = psychTestR::i18n("RMT_FEEDBACK_PLOT")),
-    type = "indicator",
-    mode = "gauge+number",
-    gauge = list(
-      bar = list(color = "#8cc77f"),
-      axis =list(range = list(0, 100)),
-      steps = list(
-        list(range = c(0, 20), color = "#ffe4b3"),
-        list(range = c(20, 40), color = "#ffd58a"),
-        list(range = c(40, 60), color = "#ffc65e"),
-        list(range = c(60, 80), color = "#ffb836"),
-        list(range = c(80, 100), color = "#ffa500"))
-    ),
-    height = 400,
-    width = 500)
-
-  plotly::layout(p, margin = list(l=20,r=30))
 }

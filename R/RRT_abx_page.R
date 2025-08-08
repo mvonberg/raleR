@@ -98,10 +98,10 @@ RRT_abx_page <- function(url_A,
     psychTestR::set_local("rrt_item_labels", rrt_labels, state) # overwrite item list
     if (input$answer==correctAnswer) {
       psychTestR::set_local(label,1,state)
-      psychTestR::save_result(state,label,1)
+      psychTestR::save_result(state,paste(label,"correct",sep="_"),1)
     } else {
       psychTestR::set_local(label,0,state)
-      psychTestR::save_result(state,label,0)
+      psychTestR::save_result(state,paste(label,"correct",sep="_"),0)
     }
   }
 
@@ -117,10 +117,10 @@ RRT_abx_page <- function(url_A,
                          selectionLabels=selectionLabels,
                          selectionValues=selectionValues,
                          on_complete=on_complete,
-                         msg_validation=psychTestR::i18n("RRT_VALIDATATION_ERROR"),
+                         msg_validation=psychTestR::i18n("RRT_VALIDATION_ERROR"),
                          inline = inline,
                          is_final_page=FALSE,
-                         button_text = psychTestR::i18n("RRT_BUTTON_NEXT")
+                         button_text = psychTestR::i18n("NEXT_BUTTON")
                          ),
     dict=dict
     )

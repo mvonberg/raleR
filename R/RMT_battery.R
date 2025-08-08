@@ -91,11 +91,12 @@ RMT_battery <- function(N_items=NULL,
                              ref_src=targets,
                              sliderSounds=sliderSounds,
                              value=round(sliderLength/2),
-                             MoreArgs=list(dict=dict,
-                                           ...))
+                             MoreArgs=list(dict=dict,...))
 
   psychTestR::module("RMT",
-                     psychTestR::join(RMT_instructions(dict=dict),
+                     psychTestR::join(RMT_instructions(sliderSounds=pool_sounds[1:sliderLength],
+                                                       sliderLength=sliderLength,value=round(sliderLength/2),
+                                                       dict=dict,...),
                                       RMT_item_battery,
                                       RMT_get_score,
                                       RMT_feedback(dict=dict),

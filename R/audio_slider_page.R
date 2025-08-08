@@ -78,6 +78,7 @@ audio_slider_page <- function(label,
   }
 
   on_complete <- function(input,state,...) {
+
     psychTestR::save_result(state,label,as.numeric(input$slider)-correct_answer)
     this_response <- as.numeric(input$slider)-correct_answer # get response
     slider_responses <- psychTestR::get_local("slider_dist_resp", state) # load previous responses
@@ -88,6 +89,7 @@ audio_slider_page <- function(label,
     max_dist <- psychTestR::get_local("slider_max_dist", state) # load maximum possible distance
     max_dist <- c(max_dist,this_max_dist) # append new maximum distance
     psychTestR::set_local("slider_max_dist", max_dist, state) # overwrite variable
+
   }
 
   psychTestR::new_timeline(
@@ -109,7 +111,7 @@ audio_slider_page <- function(label,
                                                                    id="slider")
                                       ),
                                       shiny::br(),
-                                      psychTestR::trigger_button("next", psychTestR::i18n("RMT_BUTTON_NEXT")),
+                                      psychTestR::trigger_button("next", psychTestR::i18n("NEXT_BUTTON")),
                                       JS_initiateSliderSounds,
                                       JS_initiateSliderOffset,
                                       JS_toggleSounds(),

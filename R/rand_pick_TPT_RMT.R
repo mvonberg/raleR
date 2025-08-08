@@ -22,13 +22,15 @@ rand_pick_TPT_RMT <- function(TPT_with_welcome=TRUE,
   pick <- sample(c("TPT", "RMT"),1)
   if (pick=="TPT") {
 
-    # some manual tweaks for the TPT dict
-    tptR::TPT_dict$edit(key = "INSTRUCTIONS2_ITEM4",language = "de", new = "")
-    tptR::TPT_dict$edit(key = "INSTRUCTIONS2_ITEM3",language = "de", new = "Spielen Sie zu Beginn des Blocks mit dem Slider, um zu testen wie sich der Klang ver\u00e4ndert.")
-    tptR::TPT_dict$edit(key = "INSTRUCTIONS2_ITEM5",language = "de", new = "")
-    tptR::TPT_dict$edit(key = "BEGIN_PRACTICE",language = "de", new = "Test starten")
+    # overwrite "de" with "de_f" in the TPT dict because psyquest only supports the former
+    stored.TPT_dict <- tptR::TPT_dict$as.data.frame()
+    for (i in 1:nrow(stored.TPT_dict)) {
+      tptR::TPT_dict$edit(key = stored.TPT_dict$key[i],
+                          language = "de",
+                          new = stored.TPT_dict$de_f[i])
+    }
 
-    tptR::TPT(title = "TPT",with_welcome = TRUE,with_training = FALSE)
+    tptR::TPT(title = "TPT",with_welcome = TRUE,with_training = TRUE)
   } else {
     RMT_battery(label = "rmt", N_items = RMT_N_items, targets = RMT_targets, stm_base = paste0(RMT_url_dir, RMT_src),
                 min = RMT_min, max = RMT_max, sliderLength = RMT_sliderLength, dict=raleR::RALE_dict

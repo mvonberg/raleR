@@ -13,47 +13,37 @@
 #'
 #' @param dict \code{i18n} dictionary for internationalisation.
 #'
-#' @export
-#'
 #' @references Schuette, M., Marks, A., Wenning E., & Griefahn, B. (2007). The development of the noise sensitivity questionnaire. Noise and Health 9(23), pp.15-24. DOI: 10.4103/1463-1741.34700
+#'
+#' @export
 
 RALE <- function(label="RALE",
                  subscales=c("TP","SL","RR","L"),
                  random_order=TRUE,
                  dict=raleR::RALE_dict) {
 
-  psychTestR::module(label,
-                     psychTestR::join(
-                       make_questionnaire(inventory="RALE", label=label, subscales=subscales, random_order=random_order, dict=dict),
-                       psychTestR::elt_save_results_to_disk(complete=TRUE)
-                     ),
-                     dict=dict)
+  make_questionnaire(inventory="RALE", label=label, subscales=subscales, random_order=random_order, dict=dict)
 }
 
+#' @rdname RALE
+#' @export
 NoiSeQR <- function(label="NOISEQR",
-                    subscales=c("GENERAL","WORK","SLEEP","HABITATION"),
+                    subscales=c("WORK","SLEEP","HABITATION"),
                     random_order=TRUE,
                     dict=raleR::RALE_dict) {
 
-  psychTestR::module(label,
-                     psychTestR::join(
-                       make_questionnaire(inventory="NOISEQR", label=label, subscales=subscales, random_order=random_order, dict=dict),
-                       psychTestR::elt_save_results_to_disk(complete=TRUE)
-                     ),
-                     dict=dict)
+  make_questionnaire(inventory="NOISEQR", label=label, subscales=subscales, random_order=random_order, dict=dict)
 }
 
+#' @rdname RALE
+#' @export
 EXP <- function(label="EXP",
                 random_order=TRUE,
                 dict=raleR::RALE_dict
-                 ) {
+) {
 
-  psychTestR::module(label,
-                     psychTestR::join(
-                       make_questionnaire(inventory="EXP", label=label, subscales=NULL, random_order=random_order, dict=dict),
-                       psychTestR::elt_save_results_to_disk(complete=TRUE)
-                     ),
-                     dict=dict)
+  make_questionnaire(inventory="EXP", label=label, subscales=NULL, random_order=random_order, dict=dict)
+
 }
 
 
@@ -63,13 +53,12 @@ make_questionnaire <- function(inventory, label, subscales, random_order, dict) 
   dict_keys <- as.data.frame(dict)$key[grep(inventory,as.data.frame(dict)$key)]
 
   # keys for choice options
-  choice_labels <- dict_keys[grep("CHOICE",dict_keys)]
+  choice_labels <- sort(dict_keys[grep("SCALE",dict_keys)])
 
   # keys for questions
-  if (is.null(subscales)) {
-    item_keys <- dict_keys[grep("QUESTION",dict_keys)]
-  } else {
-    item_keys <- dict_keys[grepl("QUESTION",dict_keys) & grepl(paste(subscales,collapse="|"),dict_keys)]
+  item_keys <- dict_keys[grep("QUESTION",dict_keys)]
+  if (!is.null(subscales)) {
+    item_keys <- dict_keys[grepl(paste(paste0("_",subscales,"_"),collapse="|"),dict_keys)]
   }
 
   # shuffle presentation order
@@ -83,18 +72,23 @@ make_questionnaire <- function(inventory, label, subscales, random_order, dict) 
 
   elts <- c()
   for (i in 1:length(item_keys)) {
+    this_item_key <- item_keys[i]
+    this_item_label <- item_labels[i]
     item_page <- psychTestR::new_timeline(
       psychTestR::NAFC_page(
-        label = item_labels[i],
-        prompt = psychTestR::i18n(item_keys[i]),
-        choices = 1:length(choice_labels),
+        label = this_item_label,
+        prompt = shiny::p(psychTestR::i18n(this_item_key)),
+        choices = choice_labels,
         labels = purrr::map(choice_labels,psychTestR::i18n),
         save_answer = TRUE
       ),
       dict=dict
     )
-    elst <- psychTestR::join(elts,item_page)
+    elts <- psychTestR::join(elts,item_page)
   }
-
+  psychTestR::join(psychTestR::begin_module(label),
+                     elts,
+                     psychTestR::elt_save_results_to_disk(complete=TRUE),
+                   psychTestR::end_module())
+  return(elts)
 }
-

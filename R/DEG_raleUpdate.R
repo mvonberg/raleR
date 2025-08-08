@@ -34,5 +34,5 @@ DEG_raleUpdate <- function(subscales=c()) {
                             language = "de",
                             new = replacements$text[i])
   }
-  psyquest::DEG(subscales=subscales)
+  psyquest::DEG(subscales=subscales,dict=psyquest::psyquest_dict)
 }

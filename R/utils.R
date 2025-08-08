@@ -61,3 +61,27 @@ constrained_sample <- function(range,N=1,margin=0) {
   out <- sample(range_constrained,N) # sample N values from the constrained range
   return(out)
 }
+
+# feedback plot (copy of the TPT feedback plot)
+feedback_plot <- function(score){
+  p <- plotly::plot_ly(
+    domain = list(x = c(0, 1), y = c(0, 1)),
+    value = score,
+    title = list(text = psychTestR::i18n("FEEDBACK_PLOT")),
+    type = "indicator",
+    mode = "gauge+number",
+    gauge = list(
+      bar = list(color = "#8cc77f"),
+      axis =list(range = list(0, 100)),
+      steps = list(
+        list(range = c(0, 20), color = "#ffe4b3"),
+        list(range = c(20, 40), color = "#ffd58a"),
+        list(range = c(40, 60), color = "#ffc65e"),
+        list(range = c(60, 80), color = "#ffb836"),
+        list(range = c(80, 100), color = "#ffa500"))
+    ),
+    height = 400,
+    width = 500)
+
+  plotly::layout(p, margin = list(l=20,r=30))
+}
