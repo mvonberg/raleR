@@ -2,6 +2,8 @@
 % Please edit documentation in R/questionnaires.R
 \name{RALE}
 \alias{RALE}
+\alias{NoiSeQR}
+\alias{EXP}
 \title{Room Acoustic Listening Expertise Questionnaires}
 \usage{
 RALE(
@@ -10,6 +12,15 @@ RALE(
   random_order = TRUE,
   dict = raleR::RALE_dict
 )
+
+NoiSeQR(
+  label = "NOISEQR",
+  subscales = c("WORK", "SLEEP", "HABITATION"),
+  random_order = TRUE,
+  dict = raleR::RALE_dict
+)
+
+EXP(label = "EXP", random_order = TRUE, dict = raleR::RALE_dict)
 }
 \arguments{
 \item{label}{Label (\code{string}) for the saved results. Question identifiers will be added automatically.}
