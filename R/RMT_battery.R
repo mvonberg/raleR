@@ -75,7 +75,7 @@ RMT_battery <- function(N_items=NULL,
   #print(targets)
 
   if (is.numeric(targets)) {
-    targets <- pool_sounds[targets]
+    targets <- pool_sounds[targets+1]
   }
 
   itemOrder <- sample(1:length(targets))

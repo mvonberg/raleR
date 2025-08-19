@@ -19,22 +19,20 @@ JS_processAudioSliderInput <- function() {
       var btnTarget = document.getElementById('btntarget')
 
       var sliderVal = slider.value;
+      export_answer(sliderVal);
       var source = document.getElementById('sliderAudioSource');
       if (snd.played && snd != document.getElementById('sliderAudio')) {
         fadeOut(snd);
         snd.volume=1;
-        //btnSlider.classList.remove('playing');
-        //btnTarget.classList.remove('playing');
       }
       source.src = sliderSounds[sliderVal-sliderOffset];
       snd = document.getElementById('sliderAudio');
       snd.load();
-      //snd.play();
       playSound(btnSlider);
     }
 
     export_answer(slider.value);
-     slider.addEventListener('change',processAudioSliderInput);
+    slider.addEventListener('change',processAudioSliderInput);
     "
   )
   )
@@ -54,7 +52,6 @@ JS_toggleSounds <- function() {
       var btn = document.getElementById('btn' + stimulus);
       if (snd==document.getElementById(stimulus)) {
         if (snd.paused) {
-          //snd.play();
           playSound(btn);
         } else {
           fadeOut(snd);
@@ -63,7 +60,6 @@ JS_toggleSounds <- function() {
       } else {
         if (snd.played) {
           fadeOut(snd);
-          //btn.classList.remove('playing');
         }
         snd = document.getElementById(stimulus);
         //snd.play();
@@ -90,10 +86,8 @@ JS_toggleSounds <- function() {
     async function playSound(button) {
       try {
         await snd.play();
-        //button.classList.add('playing');
         console.log('hello');
       } catch (err) {
-        //button.classList.remove('playing');
         console.log('goodbye');
       }
     }
