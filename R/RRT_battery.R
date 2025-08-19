@@ -50,7 +50,11 @@ RRT_battery <- function(N_items=20,
                         ...) {
 
   # get audio urls
-  item_stimuli <- range[-match(baseline,range)]
+  if (is.na(match(baseline,range))) {
+    item_stimuli <- range
+  } else {
+    item_stimuli <- range[-match(baseline,range)]
+  }
   item_url <- audioURLs_ABX(url_dir,source,N_source,item_stimuli,audio_file_type)
 
   base_url <- audioURLs_ABX(url_dir,source,N_source,baseline,audio_file_type)
