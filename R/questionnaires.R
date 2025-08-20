@@ -74,10 +74,12 @@ make_questionnaire <- function(inventory, label, subscales, random_order, dict) 
   for (i in 1:length(item_keys)) {
     this_item_key <- item_keys[i]
     this_item_label <- item_labels[i]
+    this_item_num <- (1:length(item_keys))[i]
     item_page <- psychTestR::new_timeline(
       psychTestR::NAFC_page(
         label = this_item_label,
-        prompt = shiny::p(psychTestR::i18n(this_item_key)),
+        prompt = shiny::div(shiny::h4(paste(psychTestR::i18n("QUESTION_HEADER1"),this_item_num,psychTestR::i18n("QUESTION_HEADER2"),length(item_keys),sep=" ")),
+                            shiny::p(psychTestR::i18n(this_item_key))),
         choices = choice_labels,
         labels = purrr::map(choice_labels,psychTestR::i18n),
         save_answer = TRUE
@@ -86,9 +88,9 @@ make_questionnaire <- function(inventory, label, subscales, random_order, dict) 
     )
     elts <- psychTestR::join(elts,item_page)
   }
-  psychTestR::join(psychTestR::begin_module(label),
-                     elts,
-                     psychTestR::elt_save_results_to_disk(complete=TRUE),
-                   psychTestR::end_module())
-  return(elts)
+  psychTestR::module(label=label,
+                     psychTestR::join(
+                       elts,
+                       psychTestR::elt_save_results_to_disk(complete=TRUE))
+                     )
 }

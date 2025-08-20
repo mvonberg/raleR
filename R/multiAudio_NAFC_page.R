@@ -65,7 +65,9 @@ multiAudio_NAFC_page <- function(label,
   cmpAlt_audioIDs <- sapply(cmpAlt_src,get_filename_from_path,USE.NAMES=FALSE)
 
   get_answer <- function(input,...) {
-    out <- list(refAlt=refAlt_audioIDs,cmpAlt=cmpAlt_audioIDs,choice=input$answer)
+    out <- list(refAlt=refAlt_audioIDs,cmpAlt=cmpAlt_audioIDs,
+                clicked_response_option=match(input$answer,selectionValues),
+                choice=input$answer)
     return(out)
   }
 

@@ -13,6 +13,7 @@ intro_datapolicy <- function(dict=raleR::RALE_dict) {
       psychTestR::one_button_page(
         body = shiny::div(shiny::h3(psychTestR::i18n("INTRO_HEADER")),
                           shiny::p(psychTestR::i18n("INTRO_TEXT_PROJECT")),
+                          shiny::p(shiny::strong(psychTestR::i18n("INTRO_USE_HEADPHONES"))),
                           shiny::p(psychTestR::i18n("INTRO_TEXT_KNOWLEDGE")),
                           shiny::p(psychTestR::i18n("INTRO_TEXT_MSI")),
                           shiny::p(psychTestR::i18n("INTRO_TEXT_RALE")),

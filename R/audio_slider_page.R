@@ -71,7 +71,7 @@ audio_slider_page <- function(label,
   JS_initiateSliderOffset <- shiny::tags$script(paste0("var sliderOffset = ",min,";")) # define slider offset in javascript
 
   psychTestR::new_timeline(
-    psychTestR::page(ui =  shiny::div(shiny::h3(paste(psychTestR::i18n("RMT_ITEM_HEADER"),item_idx,sep=" ")),
+    psychTestR::page(ui =  shiny::div(shiny::h4(paste(psychTestR::i18n("RMT_ITEM_HEADER"),item_idx,sep=" ")),
                                       shiny::br(),
                                       shiny::p(psychTestR::i18n("RMT_ITEM_PROMPT")),
                                       shiny::br(),

@@ -19,6 +19,9 @@ setLevel <- function(url_dir,
   psychTestR::new_timeline(
     psychTestR::one_button_page(
       body = shiny::div(shiny::h3(psychTestR::i18n("SET_LEVEL_HEADER")),
+                        shiny::br(),
+                        shiny::p(shiny::strong(psychTestR::i18n("PUT_ON_HEADPHONES"))),
+                        shiny::br(),
                         shiny::p(psychTestR::i18n("SET_LEVEL_PROMPT1")),
                         shiny::br(),
                         audio_button(paste0(url_dir,filename),label=psychTestR::i18n("SET_LEVEL_BUTTON_PLAY"),btn.size="40%"),

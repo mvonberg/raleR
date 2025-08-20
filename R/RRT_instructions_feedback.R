@@ -8,6 +8,9 @@ RRT_demo_page <- function(url_A,
 
   psychTestR::new_timeline(
     psychTestR::page(ui = shiny::div(shiny::h3(psychTestR::i18n("RRT_DEMO_HEADER")),
+                                     shiny::br(),
+                                     shiny::p(shiny::strong(psychTestR::i18n("PUT_ON_HEADPHONES"))),
+                                     shiny::br(),
                                      shiny::p(psychTestR::i18n("RRT_DEMO_PROMPT")),
                                      shiny::br(),
                                      audio_button(c(url_A,url_B),labels_AB,"20%"),

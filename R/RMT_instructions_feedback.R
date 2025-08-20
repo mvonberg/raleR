@@ -4,6 +4,8 @@ RMT_instructions <- function(sliderSounds,sliderLength,value,step=1,ref_buttonSi
   psychTestR::new_timeline(
     psychTestR::page(ui =  shiny::div(shiny::h3(psychTestR::i18n("RMT_DEMO_HEADER")),
                                       shiny::br(),
+                                      shiny::p(shiny::strong(psychTestR::i18n("PUT_ON_HEADPHONES"))),
+                                      shiny::br(),
                                       shiny::p(psychTestR::i18n("RMT_DEMO_PROMPT1")),
                                       shiny::p(psychTestR::i18n("RMT_DEMO_PROMPT2")),
                                       shiny::p(psychTestR::i18n("RMT_DEMO_PROMPT3")),
