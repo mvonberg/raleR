@@ -79,8 +79,10 @@ make_questionnaire <- function(inventory, label, subscales, random_order, dict) 
       psychTestR::NAFC_page(
         label = this_item_label,
         prompt = shiny::div(shiny::h4(paste(psychTestR::i18n("QUESTION_HEADER1"),this_item_num,psychTestR::i18n("QUESTION_HEADER2"),length(item_keys),sep=" ")),
-                            shiny::p(psychTestR::i18n(this_item_key))),
+                            shiny::p(psychTestR::i18n(this_item_key)),
+                            style="width: 60%"),
         choices = choice_labels,
+        button_style = "min-width: 200px",
         labels = purrr::map(choice_labels,psychTestR::i18n),
         save_answer = TRUE
       ),

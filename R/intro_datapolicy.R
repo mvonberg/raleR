@@ -20,7 +20,7 @@ intro_datapolicy <- function(dict=raleR::RALE_dict) {
                                      shiny::br(),
                                      shiny::p(psychTestR::i18n("INTRO_AUTHOR")),
                                      shiny::p(psychTestR::i18n("INTRO_CONTACT"),shiny::a(href="mailto:markusmartin.vonberg@hs-duesseldorf.de", "markusmartin.vonberg@hs-duesseldorf.de")),
-                                     style="text-align: left")
+                                     style="text-align: left; width: 60%; margin-left: 5%")
                           ),
         button_text = psychTestR::i18n("INTRO_START_BUTTON")
       ),
@@ -51,7 +51,7 @@ intro_datapolicy <- function(dict=raleR::RALE_dict) {
                                      shiny::br(),
                                      shiny::p(psychTestR::i18n("DATAPOL_CONTACT_DPO")),
                                      shiny::p(shiny::a(href="mailto:datenschutzbeauftrager@hs-duesseldorf.de","datenschutzbeauftragter@hs-duesseldorf.de")),
-                                     style = "text-align: left")
+                                     style = "text-align: left; width: 60%; margin-left: 5%")
                           ),
         button_text = psychTestR::i18n("DATAPOL_AGREE_BUTTON")
       )

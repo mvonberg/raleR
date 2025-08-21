@@ -9,7 +9,7 @@ RMT_instructions <- function(sliderSounds,sliderLength,value,step=1,ref_buttonSi
                                       shiny::div(shiny::p(psychTestR::i18n("RMT_DEMO_PROMPT1")),
                                                  shiny::p(psychTestR::i18n("RMT_DEMO_PROMPT2")),
                                                  shiny::p(psychTestR::i18n("RMT_DEMO_PROMPT3")),
-                                                 style = "text-align: left"),
+                                                 style = "text-align: left; width: 60%; margin-left: 5%"),
                                       shiny::br(),
                                       audio_button(sliderSounds[round(sliderLength/3)],id='target',psychTestR::i18n("RMT_TARGET_LABEL"),ref_buttonSize),
                                       shiny::br(),
