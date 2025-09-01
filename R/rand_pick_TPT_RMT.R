@@ -19,7 +19,8 @@ rand_pick_TPT_RMT <- function(TPT_with_welcome=TRUE,
                               RMT_min=0,
                               RMT_max=50,
                               RMT_sliderLength=20) {
-  pick <- sample(c("TPT", "RMT"),1)
+  #pick <- sample(c("TPT", "RMT"),1)
+  pick <- "TPT"
   if (pick=="TPT") {
 
     # overwrite "de" with "de_f" in the TPT dict because psyquest only supports the former
