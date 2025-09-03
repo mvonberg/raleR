@@ -51,7 +51,7 @@ RMT_battery <- function(N_items=NULL,
                         sliderLength=length(pool_sounds),
                         targets=NULL,
                         target_range=NULL,
-                        target_margins=3,
+                        target_margins=5,
                         show_trial_number=TRUE,
                         format_numbers="%02d",
                         file_ext="mp3",
@@ -78,16 +78,10 @@ RMT_battery <- function(N_items=NULL,
     targets <- pool_sounds[targets+1]
   }
 
-  itemOrder <- sample(1:length(targets))
-  targets <- targets[itemOrder] # randomize item order
-
   sliderSounds <- lapply(targets,sample_range,vector_in=pool_sounds,range_length=sliderLength,target_margin=target_margins)
 
-  item_labels <- paste0(label,itemOrder)
-
   RMT_item_battery <- mapply(audio_slider_page,
-                             label=item_labels,
-                             item_idx=paste0(1:length(item_labels),"/",length(item_labels)),
+                             label=label,
                              ref_src=targets,
                              sliderSounds=sliderSounds,
                              value=round(sliderLength/2),
@@ -97,7 +91,9 @@ RMT_battery <- function(N_items=NULL,
                      psychTestR::join(RMT_instructions(sliderSounds=pool_sounds[1:sliderLength],
                                                        sliderLength=sliderLength,value=round(sliderLength/2),
                                                        dict=dict,...),
-                                      RMT_item_battery,
+                                      psychTestR::randomise_at_run_time(
+                                        label=paste(label,"item_order",sep="_"),
+                                        RMT_item_battery),
                                       RMT_get_score,
                                       RMT_feedback(dict=dict),
                                       psychTestR::elt_save_results_to_disk(complete=TRUE))

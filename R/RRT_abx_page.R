@@ -1,7 +1,7 @@
 #' RRT item page with ABX interface
 #'
 #' @description ABX page to with two reference sound and an comparison sound that matches either A or B.
-#' Radio buttons are used to select whether A or B matches X. The function is a wrapper for the multiAudio_NAFC_page.
+#' Radio buttons are used to select whether A or B matches X. The function is a wrapper for the \code{\link{multiAudio_NAFC_page}}.
 #'
 #' @param url_A character or vector (for interchangeable sources) of URLs for A
 #'
@@ -9,7 +9,8 @@
 #'
 #' @param label page label
 #'
-#' @param prompt additional text above the buttons toggling the sounds
+#' @param item_num Item number that is needed for randomised assignment of stimulus to A, B and X and whether A or B is correct.
+#' Should be unique for each item if full randomisation is desired.
 #'
 #' @param question Question above the answers (radio buttons).
 #'
@@ -35,7 +36,7 @@
 RRT_abx_page <- function(url_A,
                          url_B,
                          label,
-                         prompt,
+                         item_num=1,
                          question,
                          labels_AB=c("Play A","Play B"),
                          label_X="Play X",
@@ -47,82 +48,233 @@ RRT_abx_page <- function(url_A,
                          ...) {
 
   ### RANDOMIZED IMPLEMENTATION OF ABX LOGIC ###
+  stimulus_combinations <- RRT_item_config(url_A,url_B)
+  src_AB <- stimulus_combinations[,1:2]
+  src_X <- stimulus_combinations[,3]
 
-  # STEP 1: randomize whether A=X or B=X
-  url_ABX <- data.frame(A=unlist(url_A,use.names = FALSE),
-                        B=unlist(url_B,use.names = FALSE)) # data frame of A and B source urls
-  X_assign <- sample(1:2,1)                                # randomly assign X to A or B (save index for later)
-  url_ABX <- cbind(url_ABX,X=url_ABX[,X_assign])           # double assigned column as X
-
-  #print(paste("true:",selectionLabels[X_assign])) # for debugging
-  #print(url_ABX)
-
-  # STEP 2: assing sources (if there is more than 1). If there are just 2, A and B are the same source
-  if (nrow(url_ABX) > 1) {
-
-    # shuffle source order
-    if (is.null(fixed_X)) {
-      src_assignment <- sample(1:3)
-    } else {
-      src_assignment <- c(sample(c(1:3)[-match(fixed_X,1:3)]),fixed_X)
-    }
-    idx_srcX <- src_assignment[length(src_assignment)]   # X always must differ from A and B: 3rd if there are 3, 2nd if there are 2
-    idx_srcA <- src_assignment[1]                        # A is always the first
-    idx_srcB <- src_assignment[length(src_assignment)-1] # B is same as A if there are 2, and 2nd if there are 3
-
-    src_AB <- c(url_ABX$A[idx_srcA],url_ABX$B[idx_srcB]) # selected audio files for A and B
-    src_X <- url_ABX$X[idx_srcX]                         # selected audio file for X
-
-  } else {
-
-    src_AB <- c(url_ABX$A,url_ABX$B)
-    src_X <- url_ABX$X
-
-  }
-
-  #print(src_AB) # for debugging
-  #print(src_X)  # for debugging
 
   # STEP 3: randomize PRESENTATION ORDER of A and B
   randOrder <- sample(1:2)
-  src_AB <- src_AB[randOrder]
   selectionValues <- selectionValues[randOrder]
-  correctAnswer <- selectionValues[match(X_assign,randOrder)] # correct answer is the one that was assigned to X
-
-  #print(paste("A=",src_AB[1],"B =",src_AB[2])) # for debugging
-
-  # function to save item labels and result
-  on_complete <- function(input,state,...){
-    rrt_labels <- psychTestR::get_local("rrt_item_labels", state) # get list of completed items
-    rrt_labels <- c(rrt_labels,label) # append current item
-    psychTestR::set_local("rrt_item_labels", rrt_labels, state) # overwrite item list
-    if (input$answer==correctAnswer) {
-      psychTestR::set_local(label,1,state)
-      psychTestR::save_result(state,paste(label,"correct",sep="_"),1)
-    } else {
-      psychTestR::set_local(label,0,state)
-      psychTestR::save_result(state,paste(label,"correct",sep="_"),0)
-    }
-  }
 
   ### create multi audio NAFC page with 2 references (A,B) and one comparison (x) ###
-  psychTestR::new_timeline(
-    multiAudio_NAFC_page(label=label,
-                         refAlt_src=src_AB,
-                         cmpAlt_src=src_X,
-                         prompt=shiny::div(shiny::h4(paste(psychTestR::i18n("RRT_ITEM_HEADER"),prompt)),
-                                           shiny::br()),
-                         refAlt_labels=labels_AB,
-                         cmpAlt_labels=label_X,
-                         selectionQuestion=psychTestR::i18n("RRT_ITEM_PROMPT"),
-                         selectionLabels=selectionLabels,
-                         selectionValues=selectionValues,
-                         on_complete=on_complete,
-                         msg_validation=psychTestR::i18n("RRT_VALIDATION_ERROR"),
-                         inline = inline,
-                         is_final_page=FALSE,
-                         button_text = psychTestR::i18n("NEXT_BUTTON")
-                         ),
-    dict=dict
+  ### for real time randomization conditional pages for each of the 12 stimulus combinations are necessary
+  psychTestR::join(
+    psychTestR::conditional(RRT_get_current_config("a",item_num),
+                            psychTestR::new_timeline(
+                              multiAudio_NAFC_page(label=paste0(label,item_num),
+                                                 refAlt_src=src_AB[1,randOrder],
+                                                 cmpAlt_src=src_X[1],
+                                                 prompt=shiny::div(shiny::h4(psychTestR::i18n("RRT_ITEM_HEADER")),
+                                                                   shiny::br()),
+                                                 refAlt_labels=labels_AB,
+                                                 cmpAlt_labels=label_X,
+                                                 selectionQuestion=psychTestR::i18n("RRT_ITEM_PROMPT"),
+                                                 selectionLabels=selectionLabels,
+                                                 selectionValues=selectionValues,
+                                                 correct_answer="A",
+                                                 msg_validation=psychTestR::i18n("RRT_VALIDATION_ERROR"),
+                                                 inline = inline,
+                                                 is_final_page=FALSE,
+                                                 button_text = psychTestR::i18n("NEXT_BUTTON")
+                            ),dict=dict)),
+    psychTestR::conditional(RRT_get_current_config("b",item_num),
+                            psychTestR::new_timeline(
+                              multiAudio_NAFC_page(label=paste0(label,item_num),
+                                                   refAlt_src=src_AB[2,randOrder],
+                                                   cmpAlt_src=src_X[2],
+                                                   prompt=shiny::div(shiny::h4(psychTestR::i18n("RRT_ITEM_HEADER")),
+                                                                     shiny::br()),
+                                                   refAlt_labels=labels_AB,
+                                                   cmpAlt_labels=label_X,
+                                                   selectionQuestion=psychTestR::i18n("RRT_ITEM_PROMPT"),
+                                                   selectionLabels=selectionLabels,
+                                                   selectionValues=selectionValues,
+                                                   correct_answer="A",
+                                                   msg_validation=psychTestR::i18n("RRT_VALIDATION_ERROR"),
+                                                   inline = inline,
+                                                   is_final_page=FALSE,
+                                                   button_text = psychTestR::i18n("NEXT_BUTTON")
+                              ),dict=dict)),
+    psychTestR::conditional(RRT_get_current_config("c",item_num),
+                            psychTestR::new_timeline(
+                              multiAudio_NAFC_page(label=paste0(label,item_num),
+                                                 refAlt_src=src_AB[3,randOrder],
+                                                 cmpAlt_src=src_X[3],
+                                                 prompt=shiny::div(shiny::h4(psychTestR::i18n("RRT_ITEM_HEADER")),
+                                                                   shiny::br()),
+                                                 refAlt_labels=labels_AB,
+                                                 cmpAlt_labels=label_X,
+                                                 selectionQuestion=psychTestR::i18n("RRT_ITEM_PROMPT"),
+                                                 selectionLabels=selectionLabels,
+                                                 selectionValues=selectionValues,
+                                                 correct_answer="A",
+                                                 msg_validation=psychTestR::i18n("RRT_VALIDATION_ERROR"),
+                                                 inline = inline,
+                                                 is_final_page=FALSE,
+                                                 button_text = psychTestR::i18n("NEXT_BUTTON")
+                            ),dict=dict)),
+    psychTestR::conditional(RRT_get_current_config("d",item_num),
+                            psychTestR::new_timeline(
+                              multiAudio_NAFC_page(label=paste0(label,item_num),
+                                                 refAlt_src=src_AB[4,randOrder],
+                                                 cmpAlt_src=src_X[4],
+                                                 prompt=shiny::div(shiny::h4(psychTestR::i18n("RRT_ITEM_HEADER")),
+                                                                   shiny::br()),
+                                                 refAlt_labels=labels_AB,
+                                                 cmpAlt_labels=label_X,
+                                                 selectionQuestion=psychTestR::i18n("RRT_ITEM_PROMPT"),
+                                                 selectionLabels=selectionLabels,
+                                                 selectionValues=selectionValues,
+                                                 correct_answer="A",
+                                                 msg_validation=psychTestR::i18n("RRT_VALIDATION_ERROR"),
+                                                 inline = inline,
+                                                 is_final_page=FALSE,
+                                                 button_text = psychTestR::i18n("NEXT_BUTTON")
+                            ),dict=dict)),
+    psychTestR::conditional(RRT_get_current_config("e",item_num),
+                            psychTestR::new_timeline(
+                              multiAudio_NAFC_page(label=paste0(label,item_num),
+                                                 refAlt_src=src_AB[5,randOrder],
+                                                 cmpAlt_src=src_X[5],
+                                                 prompt=shiny::div(shiny::h4(psychTestR::i18n("RRT_ITEM_HEADER")),
+                                                                   shiny::br()),
+                                                 refAlt_labels=labels_AB,
+                                                 cmpAlt_labels=label_X,
+                                                 selectionQuestion=psychTestR::i18n("RRT_ITEM_PROMPT"),
+                                                 selectionLabels=selectionLabels,
+                                                 selectionValues=selectionValues,
+                                                 correct_answer="A",
+                                                 msg_validation=psychTestR::i18n("RRT_VALIDATION_ERROR"),
+                                                 inline = inline,
+                                                 is_final_page=FALSE,
+                                                 button_text = psychTestR::i18n("NEXT_BUTTON")
+                            ),dict=dict)),
+    psychTestR::conditional(RRT_get_current_config("f",item_num),
+                            psychTestR::new_timeline(
+                              multiAudio_NAFC_page(label=paste0(label,item_num),
+                                                 refAlt_src=src_AB[6,randOrder],
+                                                 cmpAlt_src=src_X[6],
+                                                 prompt=shiny::div(shiny::h4(psychTestR::i18n("RRT_ITEM_HEADER")),
+                                                                   shiny::br()),
+                                                 refAlt_labels=labels_AB,
+                                                 cmpAlt_labels=label_X,
+                                                 selectionQuestion=psychTestR::i18n("RRT_ITEM_PROMPT"),
+                                                 selectionLabels=selectionLabels,
+                                                 selectionValues=selectionValues,
+                                                 correct_answer="A",
+                                                 msg_validation=psychTestR::i18n("RRT_VALIDATION_ERROR"),
+                                                 inline = inline,
+                                                 is_final_page=FALSE,
+                                                 button_text = psychTestR::i18n("NEXT_BUTTON")
+                            ),dict=dict)),
+    psychTestR::conditional(RRT_get_current_config("g",item_num),
+                            psychTestR::new_timeline(
+                              multiAudio_NAFC_page(label=paste0(label,item_num),
+                                                 refAlt_src=src_AB[7,randOrder],
+                                                 cmpAlt_src=src_X[7],
+                                                 prompt=shiny::div(shiny::h4(psychTestR::i18n("RRT_ITEM_HEADER")),
+                                                                   shiny::br()),
+                                                 refAlt_labels=labels_AB,
+                                                 cmpAlt_labels=label_X,
+                                                 selectionQuestion=psychTestR::i18n("RRT_ITEM_PROMPT"),
+                                                 selectionLabels=selectionLabels,
+                                                 selectionValues=selectionValues,
+                                                 correct_answer="B",
+                                                 msg_validation=psychTestR::i18n("RRT_VALIDATION_ERROR"),
+                                                 inline = inline,
+                                                 is_final_page=FALSE,
+                                                 button_text = psychTestR::i18n("NEXT_BUTTON")
+                            ),dict=dict)),
+    psychTestR::conditional(RRT_get_current_config("h",item_num),
+                            psychTestR::new_timeline(
+                              multiAudio_NAFC_page(label=paste0(label,item_num),
+                                                 refAlt_src=src_AB[8,randOrder],
+                                                 cmpAlt_src=src_X[8],
+                                                 prompt=shiny::div(shiny::h4(psychTestR::i18n("RRT_ITEM_HEADER")),
+                                                                   shiny::br()),
+                                                 refAlt_labels=labels_AB,
+                                                 cmpAlt_labels=label_X,
+                                                 selectionQuestion=psychTestR::i18n("RRT_ITEM_PROMPT"),
+                                                 selectionLabels=selectionLabels,
+                                                 selectionValues=selectionValues,
+                                                 correct_answer="B",
+                                                 msg_validation=psychTestR::i18n("RRT_VALIDATION_ERROR"),
+                                                 inline = inline,
+                                                 is_final_page=FALSE,
+                                                 button_text = psychTestR::i18n("NEXT_BUTTON")
+                            ),dict=dict)),
+    psychTestR::conditional(RRT_get_current_config("i",item_num),
+                            psychTestR::new_timeline(
+                              multiAudio_NAFC_page(label=paste0(label,item_num),
+                                                 refAlt_src=src_AB[9,randOrder],
+                                                 cmpAlt_src=src_X[9],
+                                                 prompt=shiny::div(shiny::h4(psychTestR::i18n("RRT_ITEM_HEADER")),
+                                                                   shiny::br()),
+                                                 refAlt_labels=labels_AB,
+                                                 cmpAlt_labels=label_X,
+                                                 selectionQuestion=psychTestR::i18n("RRT_ITEM_PROMPT"),
+                                                 selectionLabels=selectionLabels,
+                                                 selectionValues=selectionValues,
+                                                 correct_answer="B",
+                                                 msg_validation=psychTestR::i18n("RRT_VALIDATION_ERROR"),
+                                                 inline = inline,
+                                                 is_final_page=FALSE,
+                                                 button_text = psychTestR::i18n("NEXT_BUTTON")
+                            ),dict=dict)),
+    psychTestR::conditional(RRT_get_current_config("j",item_num),
+                            psychTestR::new_timeline(
+                              multiAudio_NAFC_page(label=paste0(label,item_num),
+                                                 refAlt_src=src_AB[10,randOrder],
+                                                 cmpAlt_src=src_X[10],
+                                                 prompt=shiny::div(shiny::h4(psychTestR::i18n("RRT_ITEM_HEADER")),
+                                                                   shiny::br()),
+                                                 refAlt_labels=labels_AB,
+                                                 cmpAlt_labels=label_X,
+                                                 selectionQuestion=psychTestR::i18n("RRT_ITEM_PROMPT"),
+                                                 selectionLabels=selectionLabels,
+                                                 selectionValues=selectionValues,
+                                                 correct_answer="B",
+                                                 msg_validation=psychTestR::i18n("RRT_VALIDATION_ERROR"),
+                                                 inline = inline,
+                                                 is_final_page=FALSE,
+                                                 button_text = psychTestR::i18n("NEXT_BUTTON")
+                            ),dict=dict)),
+    psychTestR::conditional(RRT_get_current_config("k",item_num),
+                            psychTestR::new_timeline(
+                              multiAudio_NAFC_page(label=paste0(label,item_num),
+                                                 refAlt_src=src_AB[11,randOrder],
+                                                 cmpAlt_src=src_X[11],
+                                                 prompt=shiny::div(shiny::h4(psychTestR::i18n("RRT_ITEM_HEADER")),
+                                                                   shiny::br()),
+                                                 refAlt_labels=labels_AB,
+                                                 cmpAlt_labels=label_X,
+                                                 selectionQuestion=psychTestR::i18n("RRT_ITEM_PROMPT"),
+                                                 selectionLabels=selectionLabels,
+                                                 selectionValues=selectionValues,
+                                                 correct_answer="B",
+                                                 msg_validation=psychTestR::i18n("RRT_VALIDATION_ERROR"),
+                                                 inline = inline,
+                                                 is_final_page=FALSE,
+                                                 button_text = psychTestR::i18n("NEXT_BUTTON")
+                            ),dict=dict)),
+    psychTestR::conditional(RRT_get_current_config("l",item_num),
+                            psychTestR::new_timeline(
+                              multiAudio_NAFC_page(label=paste0(label,item_num),
+                                                 refAlt_src=src_AB[12,randOrder],
+                                                 cmpAlt_src=src_X[12],
+                                                 prompt=shiny::div(shiny::h4(psychTestR::i18n("RRT_ITEM_HEADER")),
+                                                                   shiny::br()),
+                                                 refAlt_labels=labels_AB,
+                                                 cmpAlt_labels=label_X,
+                                                 selectionQuestion=psychTestR::i18n("RRT_ITEM_PROMPT"),
+                                                 selectionLabels=selectionLabels,
+                                                 selectionValues=selectionValues,
+                                                 correct_answer="B",
+                                                 msg_validation=psychTestR::i18n("RRT_VALIDATION_ERROR"),
+                                                 inline = inline,
+                                                 is_final_page=FALSE,
+                                                 button_text = psychTestR::i18n("NEXT_BUTTON")
+                            ),dict=dict))
     )
 }

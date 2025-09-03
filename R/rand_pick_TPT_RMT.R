@@ -19,22 +19,23 @@ rand_pick_TPT_RMT <- function(TPT_with_welcome=TRUE,
                               RMT_min=0,
                               RMT_max=50,
                               RMT_sliderLength=20) {
-  #pick <- sample(c("TPT", "RMT"),1)
-  pick <- "TPT"
-  if (pick=="TPT") {
 
-    # overwrite "de" with "de_f" in the TPT dict because psyquest only supports the former
-    stored.TPT_dict <- tptR::TPT_dict$as.data.frame()
-    for (i in 1:nrow(stored.TPT_dict)) {
-      tptR::TPT_dict$edit(key = stored.TPT_dict$key[i],
-                          language = "de",
-                          new = stored.TPT_dict$de_f[i])
-    }
-
-    tptR::TPT(title = "TPT",with_welcome = TRUE,with_training = TRUE)
-  } else {
-    RMT_battery(label = "rmt", N_items = RMT_N_items, targets = RMT_targets, stm_base = paste0(RMT_url_dir, RMT_src),
-                min = RMT_min, max = RMT_max, sliderLength = RMT_sliderLength, dict=raleR::RALE_dict
-    )
+  # overwrite "de" with "de_f" in the TPT dict because psyquest only supports the former
+  stored.TPT_dict <- tptR::TPT_dict$as.data.frame()
+  for (i in 1:nrow(stored.TPT_dict)) {
+    tptR::TPT_dict$edit(key = stored.TPT_dict$key[i],
+                        language = "de",
+                        new = stored.TPT_dict$de_f[i])
   }
+
+  psychTestR::join(psychTestR::conditional(include_for_participant("a"),
+                                                   tptR::TPT(title = "TPT",with_welcome = TRUE,with_training = TRUE)),
+                           psychTestR::conditional(include_for_participant("b"),
+                                                   RMT_battery(label = "rmt", N_items = RMT_N_items, targets = RMT_targets,
+                                                               stm_base = paste0(RMT_url_dir, RMT_src),
+                                                               min = RMT_min, max = RMT_max,
+                                                               sliderLength = RMT_sliderLength, dict=raleR::RALE_dict
+                                                               )
+                                                   )
+                           )
 }

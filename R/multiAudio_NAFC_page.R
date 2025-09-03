@@ -21,7 +21,7 @@
 #'
 #' @param selectionValues values returned by the radio buttons
 #'
-#' @param on_complete Optional callback function on page completion. Useful for processing the response (e.g., annotating false or correct responses).
+#' @param correct_answer Correct choice option.
 #'
 #' @param defaultSelection Default selection for the radio buttons. Default is an empty string, i.e. no selection.
 #'
@@ -50,7 +50,7 @@ multiAudio_NAFC_page <- function(label,
                                  selectionQuestion="Which sound is correct?",
                                  selectionLabels=refAlt_labels,
                                  selectionValues=1:length(refAlt_src),
-                                 on_complete=NULL,
+                                 correct_answer=NULL,
                                  defaultSelection="",
                                  refAlt_buttonSize="20%",
                                  cmpAlt_buttonSize=refAlt_buttonSize,
@@ -76,6 +76,19 @@ multiAudio_NAFC_page <- function(label,
       TRUE
   } else {
       msg_validation
+    }
+  }
+
+  on_complete <- function(input,state,...){
+    rrt_labels <- psychTestR::get_local("rrt_item_labels", state) # get list of completed items
+    rrt_labels <- c(rrt_labels,label) # append current item
+    psychTestR::set_local("rrt_item_labels", rrt_labels, state) # overwrite item list
+    if (input$answer==correct_answer) {
+      psychTestR::set_local(label,1,state)
+      psychTestR::save_result(state,paste(label,"correct",sep="_"),1)
+    } else {
+      psychTestR::set_local(label,0,state)
+      psychTestR::save_result(state,paste(label,"correct",sep="_"),0)
     }
   }
 

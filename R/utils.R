@@ -85,3 +85,50 @@ feedback_plot <- function(score){
 
   plotly::layout(p, margin = list(l=20,r=30))
 }
+
+# create lookup table for RRT stimulus combinations
+RRT_item_config <- function(url_A,url_B) {
+  if (is.list(url_B)) {
+    url_B <- unlist(url_B)
+  }
+  if (length(url_A==3)) {
+    idx_comb <- matrix(c(1,1,2,2,3,3,
+                         2,3,3,1,1,2,
+                         3,2,1,3,2,1),
+                       ncol=3
+    )
+  } else {
+    idx_comb <- matrix(c(rep(1:2,4),
+                         rep(2:1,2)),
+                       ncol=3)
+  }
+  item_combs <- rbind(cbind(url_A[idx_comb[,1]],url_B[idx_comb[,2]],url_A[idx_comb[,3]]),
+                      cbind(url_A[idx_comb[,1]],url_B[idx_comb[,2]],url_B[idx_comb[,3]]))
+  return(item_combs)
+}
+
+RRT_get_current_config <- function(config,item_num) {
+  function(state,...) {
+    item_config <- psychTestR::get_local("rrt_item_config", state)
+    #print(item_config[item_num]) # for debugging
+    return(item_config[item_num]==config)
+  }
+}
+
+set_seed_from_id <- function(state,...) {
+  p_id <- psychTestR::get_session_info(state, complete = F)$p_id
+  seed <- sum(as.integer(charToRaw(digest::sha1(p_id))))
+  set.seed(seed)
+  #print(seed) # for debugging
+}
+
+# randomly sample a number from N elements (kindly provided by Klaus Frieler)
+include_for_participant <- function(subgroup){
+  function(state, ...){
+    set_seed_from_id(state,...)
+    random_subgroup <- sample(letters[1:2], 1)
+    #print(random_subgroup) # for debugging
+    return(subgroup == random_subgroup)
+  }
+}
+

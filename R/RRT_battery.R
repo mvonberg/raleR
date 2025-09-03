@@ -22,9 +22,6 @@
 #'
 #' @param label Label for the items in the test battery. Item numbers will be added automatically.
 #'
-#' @param show_trial_number logical value that defines whether the trial number should be displayed in the prompt header. Does not correspond
-#' to the actual number of the randomized items.
-#'
 #' @param labels_AB Labels for the buttons toggling the audio playback for sounds A and B.
 #'
 #' @param label_X Label for the button toggling the audio playback for sound X.
@@ -43,7 +40,6 @@ RRT_battery <- function(N_items=20,
                         range=0:N_items,
                         audio_file_type="mp3",
                         label="RRT",
-                        show_trial_number=TRUE,
                         labels_AB=c("Play A","Play B"),
                         label_X="Play X",
                         dict=raleR::RALE_dict,
@@ -59,18 +55,15 @@ RRT_battery <- function(N_items=20,
 
   base_url <- audioURLs_ABX(url_dir,source,N_source,baseline,audio_file_type)
 
-  url_A_test <- item_url[1,match(max(abs(item_stimuli-baseline)),abs(item_stimuli-baseline))]
+  idx_item_test <- match(max(abs(item_stimuli-baseline)),abs(item_stimuli-baseline))
+  url_A_test <- item_url[3,idx_item_test]
   url_B_test <- base_url[2,1]
-  url_X_test <- base_url[3,1]
+  url_X_test <- c(base_url[1,1],item_url[1,idx_item_test])
 
   # randomize item order
-  itemOrder <- sample(1:ncol(item_url),N_items)
+  itemOrder <- 1:ncol(item_url)#sample(1:ncol(item_url),N_items)
   item_url <- item_url[,itemOrder]
   #print(item_url) # for debugging
-  item_labels <- paste0(label,itemOrder)
-  #print(item_labels)
-
-  prompt_per_item <- paste0(1:N_items,"/",N_items)
 
   psychTestR::module(label,
                      psychTestR::join(
@@ -81,16 +74,20 @@ RRT_battery <- function(N_items=20,
                                      label_X = label_X,
                                      dict=dict
                        ),
-                       item_battery <- Map(RRT_abx_page,
-                                           url_A=item_url,
-                                           label=item_labels,
-                                           prompt=prompt_per_item,
-                                           MoreArgs=list(
-                                             url_B=base_url,
-                                             labels_AB=labels_AB,
-                                             label_X=label_X,
-                                             dict=dict,
-                                             ...)),
+                       RRT_init_item_config,
+                       item_battery <- psychTestR::randomise_at_run_time(
+                         label=paste(label,"item_order",sep="_"),
+                         Map(RRT_abx_page,
+                             url_A=item_url,
+                             label=label,
+                             item_num=itemOrder,
+                             MoreArgs=list(
+                               url_B=base_url,
+                               labels_AB=labels_AB,
+                               label_X=label_X,
+                               dict=dict,
+                               ...))
+                       ),
                        RRT_get_raw_score,
                        RRT_feedback(dict=dict),
                        psychTestR::elt_save_results_to_disk(complete=TRUE))

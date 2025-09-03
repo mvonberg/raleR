@@ -6,25 +6,50 @@ RRT_demo_page <- function(url_A,
                           inline = TRUE,
                           dict=raleR::RALE_dict) {
 
-  psychTestR::new_timeline(
-    psychTestR::page(ui = shiny::div(shiny::h3(psychTestR::i18n("RRT_DEMO_HEADER")),
-                                     shiny::br(),
-                                     shiny::div(shiny::p(psychTestR::i18n("RRT_DEMO_PROMPT")),
-                                                style="text-align: left; width: 60%; margin-left: 5%"),
-                                     shiny::br(),
-                                     audio_button(c(url_A,url_B),labels_AB,"20%"),
-                                     shiny::br(),
-                                     audio_button(c(url_X),label_X,"20%"),
-                                     shiny::br(),
-                                     psychTestR::trigger_button("next",psychTestR::i18n("START_TEST_BUTTON")),
-                                     JS_toggleSounds()),
-                     admin = NULL, label="RRTdemo",final=FALSE,get_answer=NULL,save_answer=FALSE,validate=NULL,on_complete=NULL,
-                     next_elt=TRUE),
-    dict=dict
+  psychTestR::join(
+    psychTestR::conditional(include_for_participant("a"),
+                            psychTestR::new_timeline(
+                              psychTestR::page(ui = shiny::div(shiny::h3(psychTestR::i18n("RRT_DEMO_HEADER")),
+                                                               shiny::br(),
+                                                               shiny::div(shiny::p(psychTestR::i18n("RRT_DEMO_PROMPT")),
+                                                                          style="text-align: left; width: 60%; margin-left: 5%"),
+                                                               shiny::br(),
+                                                               audio_button(c(url_A,url_B),labels_AB,"20%"),
+                                                               shiny::br(),
+                                                               audio_button(c(url_X[1]),label_X,"20%"),
+                                                               shiny::br(),
+                                                               psychTestR::trigger_button("next",psychTestR::i18n("START_TEST_BUTTON")),
+                                                               JS_toggleSounds()),
+                                               admin = NULL, label="RRTdemo",final=FALSE,get_answer=NULL,save_answer=FALSE,validate=NULL,on_complete=NULL,
+                                               next_elt=TRUE),
+                              dict=dict
+                            )),
+    psychTestR::conditional(include_for_participant("b"),
+                            psychTestR::new_timeline(
+                              psychTestR::page(ui = shiny::div(shiny::h3(psychTestR::i18n("RRT_DEMO_HEADER")),
+                                                               shiny::br(),
+                                                               shiny::div(shiny::p(psychTestR::i18n("RRT_DEMO_PROMPT")),
+                                                                          style="text-align: left; width: 60%; margin-left: 5%"),
+                                                               shiny::br(),
+                                                               audio_button(c(url_A,url_B),labels_AB,"20%"),
+                                                               shiny::br(),
+                                                               audio_button(c(url_X[2]),label_X,"20%"),
+                                                               shiny::br(),
+                                                               psychTestR::trigger_button("next",psychTestR::i18n("START_TEST_BUTTON")),
+                                                               JS_toggleSounds()),
+                                               admin = NULL, label="RRTdemo",final=FALSE,get_answer=NULL,save_answer=FALSE,validate=NULL,on_complete=NULL,
+                                               next_elt=TRUE),
+                              dict=dict
+                            ))
   )
 
 }
 
+RRT_init_item_config <- psychTestR::code_block(function(state,...) {
+  set_seed_from_id(state,...)
+  item_config <- sample(letters[1:12],size=20,replace = TRUE)
+  psychTestR::set_local("rrt_item_config",item_config,state)
+})
 
 RRT_get_raw_score <- psychTestR::code_block(function(state,...) {
   item_labels <- psychTestR::get_local("rrt_item_labels", state)
