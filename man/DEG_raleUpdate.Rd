@@ -4,10 +4,12 @@
 \alias{DEG_raleUpdate}
 \title{Update of the psyquest-DEG function}
 \usage{
-DEG_raleUpdate(subscales = c())
+DEG_raleUpdate(subscales = c(), language)
 }
 \arguments{
 \item{subscales}{A character vector of subscales to be included in the questionnaire.}
+
+\item{language}{Language for testing.}
 }
 \description{
 Wrapper for the \code{DEG} function of the \code{psyquest} package. Prior to calling the function,
