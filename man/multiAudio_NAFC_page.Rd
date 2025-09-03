@@ -14,7 +14,7 @@ multiAudio_NAFC_page(
   selectionQuestion = "Which sound is correct?",
   selectionLabels = refAlt_labels,
   selectionValues = 1:length(refAlt_src),
-  on_complete = NULL,
+  correct_answer = NULL,
   defaultSelection = "",
   refAlt_buttonSize = "20\%",
   cmpAlt_buttonSize = refAlt_buttonSize,
@@ -42,7 +42,7 @@ sounds (upper row) and comparison sounds (lower row)}
 
 \item{selectionValues}{values returned by the radio buttons}
 
-\item{on_complete}{Optional callback function on page completion. Useful for processing the response (e.g., annotating false or correct responses).}
+\item{correct_answer}{Correct choice option.}
 
 \item{defaultSelection}{Default selection for the radio buttons. Default is an empty string, i.e. no selection.}
 

@@ -9,18 +9,16 @@
 RALE(
   label = "RALE",
   subscales = c("TP", "SL", "RR", "L"),
-  random_order = TRUE,
   dict = raleR::RALE_dict
 )
 
 NoiSeQR(
   label = "NOISEQR",
   subscales = c("WORK", "SLEEP", "HABITATION"),
-  random_order = TRUE,
   dict = raleR::RALE_dict
 )
 
-EXP(label = "EXP", random_order = TRUE, dict = raleR::RALE_dict)
+EXP(label = "EXP", dict = raleR::RALE_dict)
 }
 \arguments{
 \item{label}{Label (\code{string}) for the saved results. Question identifiers will be added automatically.}
@@ -28,8 +26,6 @@ EXP(label = "EXP", random_order = TRUE, dict = raleR::RALE_dict)
 \item{subscales}{Subscales to choose from each inventory. For \code{RALE} the subscales \code{TP} (timbre perception), \code{SL} (sound localization),
 \code{RR} (room reverberation) and \code{L} (loudness perception) are available. For \code{NoiSeQR} the \code{GENERAL} noise sensitivity and the subscales
 \code{WORK}, \code{SLEEP}  and \code{HABITATION} are available. For \code{EXP}, there are no subscales.}
-
-\item{random_order}{Logical value that defines whether the items should be presented in a random order. Default is \code{TRUE}.}
 
 \item{dict}{\code{i18n} dictionary for internationalisation.}
 }

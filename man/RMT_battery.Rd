@@ -14,7 +14,7 @@ RMT_battery(
   sliderLength = length(pool_sounds),
   targets = NULL,
   target_range = NULL,
-  target_margins = 3,
+  target_margins = 5,
   show_trial_number = TRUE,
   format_numbers = "\%02d",
   file_ext = "mp3",

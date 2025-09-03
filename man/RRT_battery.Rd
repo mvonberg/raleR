@@ -13,7 +13,6 @@ RRT_battery(
   range = 0:N_items,
   audio_file_type = "mp3",
   label = "RRT",
-  show_trial_number = TRUE,
   labels_AB = c("Play A", "Play B"),
   label_X = "Play X",
   dict = raleR::RALE_dict,
@@ -37,9 +36,6 @@ If 2, A and B have the same source and X is different.}
 \item{audio_file_type}{file extension for the audio files in \code{url_dir}.}
 
 \item{label}{Label for the items in the test battery. Item numbers will be added automatically.}
-
-\item{show_trial_number}{logical value that defines whether the trial number should be displayed in the prompt header. Does not correspond
-to the actual number of the randomized items.}
 
 \item{labels_AB}{Labels for the buttons toggling the audio playback for sounds A and B.}
 

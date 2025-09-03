@@ -8,7 +8,7 @@ RRT_abx_page(
   url_A,
   url_B,
   label,
-  prompt,
+  item_num = 1,
   question,
   labels_AB = c("Play A", "Play B"),
   label_X = "Play X",
@@ -27,7 +27,8 @@ RRT_abx_page(
 
 \item{label}{page label}
 
-\item{prompt}{additional text above the buttons toggling the sounds}
+\item{item_num}{Item number that is needed for randomised assignment of stimulus to A, B and X and whether A or B is correct.
+Should be unique for each item if full randomisation is desired.}
 
 \item{question}{Question above the answers (radio buttons).}
 
@@ -50,5 +51,5 @@ sounds (upper row)}
 }
 \description{
 ABX page to with two reference sound and an comparison sound that matches either A or B.
-Radio buttons are used to select whether A or B matches X. The function is a wrapper for the multiAudio_NAFC_page.
+Radio buttons are used to select whether A or B matches X. The function is a wrapper for the \code{\link{multiAudio_NAFC_page}}.
 }
