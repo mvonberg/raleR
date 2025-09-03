@@ -5,9 +5,11 @@
 #'
 #' @param subscales A character vector of subscales to be included in the questionnaire.
 #'
+#' @param language Language for testing.
+#'
 #' @export
 
-DEG_raleUpdate <- function(subscales=c()) {
+DEG_raleUpdate <- function(subscales=c(),language) {
 
   # load psyquest dict as data frame
   psyquest_dict_df <- psyquest::psyquest_dict$as.data.frame()
@@ -31,8 +33,8 @@ DEG_raleUpdate <- function(subscales=c()) {
   # insert replacements in dictionary
   for (i in 1:nrow(replacements)) {
     psyquest::psyquest_dict$edit(key = replacements$key[i],
-                            language = "de",
-                            new = replacements$text[i])
+                                 language="de",
+                                 new = replacements$text[i])
   }
-  psyquest::DEG(subscales=subscales,dict=psyquest::psyquest_dict)
+  psyquest::DEG(subscales=subscales,dict=psyquest::psyquest_dict,language=language)
 }
