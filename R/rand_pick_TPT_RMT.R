@@ -6,19 +6,18 @@
 #'
 #' @param TPT_with_training logical value indicating whether the TPT should include a training phase.
 #'
-#' @param RMT_url_dir,RMT_src,RMT_N_items,RMT_targets,RMT_min,RMT_max,RMT_sliderLength RMT configuration parameters that are passed on to [RMT_battery].
+#' @param RMT_url_dir,RMT_src,RMT_N_items,RMT_targets,RMT_min,RMT_sliderLength RMT configuration parameters that are passed on to [RMT_battery].
 #'
 #' @export
 
 rand_pick_TPT_RMT <- function(TPT_with_welcome=TRUE,
                               TPT_with_training=TRUE,
                               RMT_url_dir,
-                              RMT_src="Git2_",
+                              RMT_src="RMTstim_",
                               RMT_N_items=NULL,
                               RMT_targets=NULL,
                               RMT_min=0,
-                              RMT_max=50,
-                              RMT_sliderLength=20) {
+                              RMT_sliderLength=31) {
 
   # overwrite "de" with "de_f" in the TPT dict because psyquest only supports the former
   stored.TPT_dict <- tptR::TPT_dict$as.data.frame()
@@ -33,8 +32,8 @@ rand_pick_TPT_RMT <- function(TPT_with_welcome=TRUE,
                            psychTestR::conditional(include_for_participant("b"),
                                                    RMT_battery(label = "rmt", N_items = RMT_N_items, targets = RMT_targets,
                                                                stm_base = paste0(RMT_url_dir, RMT_src),
-                                                               min = RMT_min, max = RMT_max,
-                                                               sliderLength = RMT_sliderLength, dict=raleR::RALE_dict
+                                                               min = RMT_min, sliderLength=RMT_sliderLength,
+                                                               dict=raleR::RALE_dict
                                                                )
                                                    )
                            )

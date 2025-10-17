@@ -23,12 +23,14 @@ JS_processAudioSliderInput <- function() {
       var source = document.getElementById('sliderAudioSource');
       if (snd.played && snd != document.getElementById('sliderAudio')) {
         fadeOut(snd);
+        btnSlider.blur();
         snd.volume=1;
       }
       source.src = sliderSounds[sliderVal-sliderOffset];
       snd = document.getElementById('sliderAudio');
       snd.load();
       playSound(btnSlider);
+      btnSlider.focus()
     }
 
     export_answer(slider.value);

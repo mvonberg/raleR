@@ -1,4 +1,4 @@
-RMT_instructions <- function(sliderSounds,sliderLength,value,step=1,ref_buttonSize="20%",
+RMT_instructions <- function(sliderSounds,value,step=1,ref_buttonSize="20%",
                              stm_buttonSize="20%",dict=raleR::RALE_dict) {
 
   psychTestR::new_timeline(
@@ -11,7 +11,7 @@ RMT_instructions <- function(sliderSounds,sliderLength,value,step=1,ref_buttonSi
                                                  shiny::p(psychTestR::i18n("RMT_DEMO_PROMPT3")),
                                                  style = "text-align: left; width: 60%; margin-left: 5%"),
                                       shiny::br(),
-                                      audio_button(sliderSounds[round(sliderLength/3)],id='target',psychTestR::i18n("RMT_TARGET_LABEL"),ref_buttonSize),
+                                      audio_button(sliderSounds[round(length(sliderSounds)/3)],id='target',psychTestR::i18n("RMT_TARGET_LABEL"),ref_buttonSize),
                                       shiny::br(),
                                       audio_button(sliderSounds[value+1],id='sliderAudio',psychTestR::i18n("RMT_STIMULUS_LABEL"),stm_buttonSize),
                                       shiny::br(),

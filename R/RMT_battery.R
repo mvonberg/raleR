@@ -9,33 +9,34 @@
 #'
 #' @param label label for the items in the test battery. Item numbers will be added automatically
 #'
-#' @param pool_sounds character vector with audio files that can be used in the test battery. If \code{NULL}, the function will
-#' create a pool of sounds based on \code{stm_base}, \code{min}, \code{max} and \code{format_numbers}.
+#' @param sliderSounds list with one or multiple character vectors with audio files for the slider. If \code{NULL}, the function will
+#' construct slider sounds based on \code{stm_base}, \code{min}, \code{max} and \code{format_numbers}.
 #'
 #' @param stm_base "body" for audio files that are mapped onto the slider. If used, files must be named "body<Nr>.\code{file_ext}"
-#' and \code{min} and \code{max} have to be defined. Mutually exclusive with \code{pool_sounds}.
+#' and \code{min} and \code{max} have to be defined. Mutually exclusive with \code{sliderSounds}.
 #'
-#' @param min minimum value for the slider. Only required if \code{stm_base} is used rather than \code{pool_sounds}.
+#' @param min minimum value(s) for the slider. Only required if \code{stm_base} is used rather than \code{sliderSounds}.
 #'
-#' @param max maximum value for the slider. Only required if \code{stm_base} is used rather than \code{pool_sounds}.
+#' @param max maximum value(s) for the slider. Only required if \code{stm_base} is used rather than \code{sliderSounds}.
 #'
-#' @param sliderLength length of the slider, i.e. number of sounds that can be selected. Default is the length of
-#' \code{pool_sounds} so that each item presents the full scale.
+#' @param sliderLength Length(s) of the slider, i.e. number of sounds that can be selected.
 #'
 #' @param targets numeric vector with indices of sounds that should be used as targets in the test battery. If \code{NULL},
-#' the function will sample \code{N_items} targets from \code{pool_sounds}.
+#' the function will sample \code{N_items} targets from \code{sliderSounds}.
 #'
 #' @param target_range numeric vector with indices of sounds that can be used as targets in the test battery. If \code{NULL},
-#' the function will sample from the full range of \code{pool_sounds}.
+#' the function will sample from the full range of \code{sliderSounds}.
+#'
+#' @param randomize_range Should presented slider ranges be a random subset of \code{sliderSounds}? Requires \code{sliderLength} and \code{target_margins}.
 #'
 #' @param target_margins numeric value that defines the margins around the target that should be excluded from the sampled range.
 #'
 #' @param show_trial_number logical value that defines whether the trial number should be displayed in the prompt header.
 #'
-#' @param format_numbers format string for adding numbers to the base URL when building \code{pool_sounds}
+#' @param format_numbers format string for adding numbers to the base URL when building \code{sliderSounds}
 #' (e.g. "%02d" for 2 digits integers).
 #'
-#' @param file_ext file extension for the audio files in \code{pool_sounds}. Default is "mp3".
+#' @param file_ext file extension for the audio files in \code{sliderSounds}. Default is "mp3".
 #'
 #' @param dict dictionary object used for internationalisation.
 #'
@@ -44,13 +45,14 @@
 #' @export
 RMT_battery <- function(N_items=NULL,
                         label="RMT",
-                        pool_sounds=NULL,
+                        sliderSounds=NULL,
                         stm_base=NULL,
                         min=NULL,
                         max=NULL,
-                        sliderLength=length(pool_sounds),
+                        sliderLength=NULL,
                         targets=NULL,
                         target_range=NULL,
+                        randomize_range=FALSE,
                         target_margins=5,
                         show_trial_number=TRUE,
                         format_numbers="%02d",
@@ -63,33 +65,40 @@ RMT_battery <- function(N_items=NULL,
     stop("No number of test items provided. Please specify either `targets` or `N_items` argument.")
   }
 
-  # create pool_sounds arrays if necessary
-  if (is.null(pool_sounds)) {
-    pool_sounds <- file_link_array(base=stm_base,min=min,max=max,format_numbers=format_numbers,file_ext=file_ext)
+  # create sliderSounds arrays if necessary
+  if (is.null(sliderSounds)) {
+    if (is.null(max)) max <- min + sliderLength-1
+    sliderSounds <- mapply(file_link_array,base=stm_base,min=min,max=max,MoreArgs=list(format_numbers=format_numbers,file_ext=file_ext),SIMPLIFY=FALSE)
   }
 
   if(is.null(targets)) { # sample random targets if targets is empty
-    if (is.null(target_range)) {target_range <- 1:length(pool_sounds)} # sample from full sound pool if target_range is empty
+    if (is.null(target_range)) {target_range <- 1:length(sliderSounds)} # sample from full sound pool if target_range is empty
     targets <- constrained_sample(range=target_range,N=N_items,margin=target_margins)
   }
   #print(targets)
 
   if (is.numeric(targets)) {
-    targets <- pool_sounds[targets+1]
+    demo_item <- which.min(abs((targets - stats::median(targets)))) # use slider sounds of closest-to-median target value for demo
+    if (!is.null(min)) targets <- targets - min # adjust targets if necessary
+    targets <- mapply(function(target,sounds) sounds[target+1],target=targets,sounds=sliderSounds)
+  } else {
+    demo_item <- sample(1:length(targets),1) # randomly choose one item as demo
   }
 
-  sliderSounds <- lapply(targets,sample_range,vector_in=pool_sounds,range_length=sliderLength,target_margin=target_margins)
+  if (randomize_range) sliderSounds <- mapply(sample_range,target=targets,vector_in=sliderSounds,range_length=sliderLength,target_margin=target_margins)
+
+  if (is.null(sliderLength)) sliderLength <- sapply(sliderSounds,length)
 
   RMT_item_battery <- mapply(audio_slider_page,
-                             label=label,
+                             label=paste0(label,1:length(targets)),
                              ref_src=targets,
                              sliderSounds=sliderSounds,
                              value=round(sliderLength/2),
                              MoreArgs=list(dict=dict,...))
 
   psychTestR::module("RMT",
-                     psychTestR::join(RMT_instructions(sliderSounds=pool_sounds[1:sliderLength],
-                                                       sliderLength=sliderLength,value=round(sliderLength/2),
+                     psychTestR::join(RMT_instructions(sliderSounds=sliderSounds[[demo_item]],
+                                                       value=round(length(sliderSounds[[demo_item]])/2),
                                                        dict=dict,...),
                                       psychTestR::randomise_at_run_time(
                                         label=paste(label,"item_order",sep="_"),

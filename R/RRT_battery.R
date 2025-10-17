@@ -34,7 +34,7 @@
 
 RRT_battery <- function(N_items=20,
                         url_dir,
-                        source="Git",
+                        source="RRTstim",
                         N_source=3,
                         baseline=0,
                         range=0:N_items,
