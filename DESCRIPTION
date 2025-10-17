@@ -20,6 +20,7 @@ Imports:
     purrr,
     rlang,
     shiny,
+    stats,
     tools,
     tptR
 Depends: 
