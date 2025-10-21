@@ -16,7 +16,7 @@
 #' @export
 
 RALE <- function(label="RALE",
-                 subscales=c("TP","SL","RR","L"),
+                 subscales=c("TP","IN","SL","RR","LD"),
                  dict=raleR::RALE_dict) {
 
   make_questionnaire(inventory="RALE", label=label, subscales=subscales, dict=dict)
@@ -53,7 +53,7 @@ make_questionnaire <- function(inventory, label, subscales, dict) {
   # keys for questions
   item_keys <- dict_keys[grep("QUESTION",dict_keys)]
   if (!is.null(subscales)) {
-    item_keys <- dict_keys[grepl(paste(paste0("_",subscales,"_"),collapse="|"),dict_keys)]
+    item_keys <- dict_keys[grepl(paste(paste0("_",subscales),collapse="|"),dict_keys)]
   }
 
   # customize labels
