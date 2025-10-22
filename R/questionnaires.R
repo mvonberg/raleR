@@ -25,7 +25,7 @@ RALE <- function(label="RALE",
 #' @rdname RALE
 #' @export
 NoiSeQR <- function(label="NOISEQR",
-                    subscales=c("WORK","SLEEP","HABITATION"),
+                    subscales=c("WRK","SLP","HBT"),
                     dict=raleR::RALE_dict) {
 
   make_questionnaire(inventory="NOISEQR", label=label, subscales=subscales, dict=dict)
@@ -53,7 +53,7 @@ make_questionnaire <- function(inventory, label, subscales, dict) {
   # keys for questions
   item_keys <- dict_keys[grep("QUESTION",dict_keys)]
   if (!is.null(subscales)) {
-    item_keys <- dict_keys[grepl(paste(paste0("_",subscales),collapse="|"),dict_keys)]
+    item_keys <- item_keys[grepl(paste(paste0("_",subscales),collapse="|"),item_keys)]
   }
 
   # customize labels
@@ -63,12 +63,16 @@ make_questionnaire <- function(inventory, label, subscales, dict) {
   for (i in 1:length(item_keys)) {
     this_item_key <- item_keys[i]
     this_item_label <- item_labels[i]
-    this_item_num <- (1:length(item_keys))[i]
+    is_description <- grepl(gsub("QUESTION","DESCRIPTION",this_item_key),dict_keys) # check for additional description
+    if (any(is_description)) this_item_description <- dict_keys[is_description]
+
+    #this_item_num <- (1:length(item_keys))[i]
     item_page <- psychTestR::new_timeline(
       psychTestR::NAFC_page(
         label = this_item_label,
         prompt = shiny::div(#shiny::h4(paste(psychTestR::i18n("QUESTION_HEADER1"),this_item_num,psychTestR::i18n("QUESTION_HEADER2"),length(item_keys),sep=" ")),
                             shiny::p(psychTestR::i18n(this_item_key)),
+                            if (any(is_description)) shiny::p(shiny::em(psychTestR::i18n(this_item_description))),
                             style="width: 60%"),
         choices = choice_labels,
         button_style = "min-width: 200px",
